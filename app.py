@@ -1,11 +1,20 @@
 import os
 from flask import Flask
+from flask import request
+from PIL import Image
+import requests
+from io import BytesIO
 
 app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return 'Hello World!'
+    url = request.args.get('url')
+
+    #response = requests.get(url)
+    #img = Image.open(BytesIO(response.content))
+    
+    return url
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
