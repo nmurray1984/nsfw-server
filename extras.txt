@@ -1,0 +1,47 @@
+# need to import and such 
+# azure-storage-blob==12.4.0
+# Pillow==7.2.0
+# requests==2.24.0
+
+from azure.core.exceptions import HttpResponseError, ResourceExistsError
+from azure.storage.blob import BlobServiceClient
+from PIL import Image
+import requests
+import io
+import sys
+import os
+from io import BytesIO
+
+import hashlib
+
+  response = requests.get(url)
+    img = Image.open(BytesIO(response.content))
+    file_extension = ''
+    if img.format == 'JPEG':
+        file_extension = '.jpg'
+    elif img.format == 'PNG':
+        file_extension = '.png'
+    else:
+        return 'invalid image'
+    app.logger.info("file extension detected :%s", file_extension )
+    m = hashlib.md5()
+    m.update(response.content)
+    image_md5 = m.hexdigest()
+    #file_name = ''
+    #with io.BytesIO() as memf:
+        #img.save(memf, img.format)
+        #data = memf.getvalue()
+        #m.update(data)r
+        #image_md5 = m.hexdigest()
+    file_name = image_md5 + file_extension
+    app.logger.info('filename: %s', file_name)
+    connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+    container_name = os.getenv('AZURE_CONTAINER_NAME')
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    container_client = blob_service_client.get_container_client(container_name)
+    container_client.upload_blob(name=file_name, data=response.content)
+
+
+        #encrypted_image = encrypt(image_bytes)
+    #scores_json = azure_content_moderator.scan(url)
+    #db.write(base64url, file_name, scores_json)
