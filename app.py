@@ -23,6 +23,14 @@ def persist_url():
     
     return 'complete'
 
+@app.route('/image-test')
+def image_test():
+    url = request.args.get('url')
+    rtn = '<!DOCTYPE html><html><body><img src="%s" /></body></html>' % url
+    return rtn
+
+
+
 if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
     port = int(os.environ.get('PORT', 5000))
