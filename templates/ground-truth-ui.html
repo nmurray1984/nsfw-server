@@ -22,10 +22,9 @@
 
     <div id="image"></div>
     <script>
+        
         var img = document.createElement('img'); 
         img.src =  '{{ context.url }}'; 
-        img.width = 300;
-        img.height = 300;
         img.onload = function() {
             setTimeout(function() {
                 document.getElementById('image').remove();

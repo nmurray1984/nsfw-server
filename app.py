@@ -7,6 +7,8 @@ import psycopg2
 import base64
 import logging
 import json
+import requests
+import tensorflow as tf
 
 app = Flask(__name__)
 
@@ -56,20 +58,21 @@ def ground_truth_random_image():
     DATABASE_URL = os.environ['DATABASE_URL']
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url FROM nsfw_server.contributed_image where ground_truth_result is null order by random() limit 1'''
+    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url, image_bytes FROM nsfw_server.contributed_image where ground_truth_result is null and image_bytes is not null order by random() limit 1'''
     cursor.execute(query)
     query_results = cursor.fetchone()
     cursor.close()
-    
-    
-    return {"id": query_results[0], "url": query_results[1]}
+    image_bytes = query_results[2]
+    base64str = str(base64.b64encode(image_bytes), 'utf-8')
+    img_string = 'data:image/jpeg;base64,' + base64str
+    return {"id": query_results[0], "url": query_results[1], "data_url": img_string, "error": False}
     
 @app.route('/safe-classifier')
 def safe_classifier():
     context = ground_truth_random_image()
+    if context['error'] == True:
+        return redirect('/safe-classifier')
     return render_template('ground-truth-ui.html', context=context)
-
-
 
 @app.after_request
 def after_request_func(response):
