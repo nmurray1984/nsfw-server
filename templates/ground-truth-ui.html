@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Safe Classifier</title>
+</head>
+
+<body>
+<p>This is image {{ context.id }}.</p>
+
+<form action="/ground-truth-result/{{ context.id }}" method="post">
+    <input type="hidden" id="image_id" name="image_id" value="{{context.id}}">
+    <input type="checkbox" id="sfw" name="sfw" value="true">
+    <label for="sfw">Safe</label><br>
+    <input type="checkbox" id="racy" name="racy" value="true">
+    <label for="racy">Racy</label><br>
+    <input type="checkbox" id="adult" name="adult" value="true">
+    <label for="adult">Adult</label><br>
+    <input type="submit" value="Submit">
+</form>
+
+    <div id="image"></div>
+    <script>
+        var img = document.createElement('img'); 
+        img.src =  '{{ context.url }}'; 
+        img.onload = function() {
+            setTimeout(function() {
+                document.getElementById('image').remove();
+            }, 200);
+        }
+        document.getElementById('image').appendChild(img); 
+        
+
+    </script>
+</body>
+</html>
