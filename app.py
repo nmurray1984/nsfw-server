@@ -29,7 +29,11 @@ def image_test():
     rtn = '<!DOCTYPE html><html><body><img src="%s" /></body></html>' % url
     return rtn
 
-
+@app.after_request
+def after_request_func(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    return response
 
 if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
