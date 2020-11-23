@@ -9,12 +9,14 @@
 
 <form action="/ground-truth-result/{{ context.id }}" method="post">
     <input type="hidden" id="image_id" name="image_id" value="{{context.id}}">
-    <input type="checkbox" id="sfw" name="sfw" value="true">
-    <label for="sfw">Safe</label><br>
-    <input type="checkbox" id="racy" name="racy" value="true">
-    <label for="racy">Racy</label><br>
+    <input type="checkbox" id="error" name="error" value="true">
+    <label for="adult">Error</label><br>
     <input type="checkbox" id="adult" name="adult" value="true">
     <label for="adult">Adult</label><br>
+    <input type="checkbox" id="racy" name="racy" value="true">
+    <label for="racy">Racy</label><br>
+    <input type="checkbox" id="sfw" name="sfw" value="true" checked>
+    <label for="sfw">Safe</label><br>
     <input type="submit" value="Submit">
 </form>
 
