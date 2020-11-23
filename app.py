@@ -56,7 +56,7 @@ def ground_truth_random_image():
     DATABASE_URL = os.environ['DATABASE_URL']
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
-    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url FROM nsfw_server.contributed_image where ground_truth_result is null limit 1'''
+    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url FROM nsfw_server.contributed_image where ground_truth_result is null order by random() limit 1'''
     cursor.execute(query)
     query_results = cursor.fetchone()
     cursor.close()
