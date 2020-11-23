@@ -1,0 +1,4 @@
+azure-cognitiveservices-vision-contentmoderator==1.0.0
+python-dotenv==0.14.0
+tensorflow==2.3.0
+nsfw==0.3.2
