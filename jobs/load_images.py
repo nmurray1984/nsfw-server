@@ -9,7 +9,7 @@ import tensorflow as tf
 DATABASE_URL = os.environ['DATABASE_URL']
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 cursor = conn.cursor()
-query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url FROM nsfw_server.contributed_image where image_bytes is null and image_bytes_response is null limit 10'''
+query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url FROM nsfw_server.contributed_image where image_bytes is null and image_bytes_response is null limit 100'''
 cursor.execute(query)
 query_results = cursor.fetchall()
 cursor.close()

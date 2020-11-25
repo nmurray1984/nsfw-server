@@ -5,8 +5,12 @@
 </head>
 
 <body>
-<p>This is image {{ context.id }}.</p>
-
+<p>Image ID: {{ context.id }}</p>
+<br>
+<form action="/safe-classifier?next=true" method="get">
+    <input type="submit" value="Try Next One">
+</form>
+<br>
 <form action="/ground-truth-result/{{ context.id }}" method="post">
     <input type="hidden" id="image_id" name="image_id" value="{{context.id}}">
     <input type="checkbox" id="error" name="error" value="true">
@@ -20,11 +24,18 @@
     <input type="submit" value="Submit">
 </form>
 
+
     <div id="image"></div>
     <script>
-        
+        var sfw = document.getElementById('sfw');
+        var adult = document.getElementById('adult');
+        var racy = document.getElementById('racy');
+        var error = document.getElementById('error');
+        adult.onclick = function() {sfw.checked = false;};
+        racy.onclick = function() {sfw.checked = false;};
+        error.onclick = function() {sfw.checked = false;};
         var img = document.createElement('img'); 
-        img.src =  '{{ context.url }}'; 
+        img.src =  '{{ context.data_url }}'; 
         img.onload = function() {
             setTimeout(function() {
                 document.getElementById('image').remove();
