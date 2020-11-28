@@ -3,6 +3,7 @@ from flask import Flask
 from flask import request
 from flask import redirect
 from flask import render_template
+from flask import g
 import psycopg2
 import base64
 import logging
@@ -11,6 +12,22 @@ import requests
 import tensorflow as tf
 
 app = Flask(__name__)
+
+def get_db():
+    """Opens a new database connection if there is none yet for the
+    current application context.
+    """
+    if not hasattr(g, 'postgres_db'):
+        DATABASE_URL = os.environ['DATABASE_URL']
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        g.postgres_db = conn
+    return g.postgres_db
+
+@app.teardown_appcontext
+def close_db(error):
+    """Closes the database again at the end of the request."""
+    if hasattr(g, 'postgres_db'):
+        g.postgres_db.close()
 
 @app.route('/')
 def persist_url():
@@ -55,8 +72,7 @@ def ground_truth_result(image_id):
 
 #@app.route('/ground-truth-random-image', methods=['GET'])
 def ground_truth_random_image():
-    DATABASE_URL = os.environ['DATABASE_URL']
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    conn = get_db()
     cursor = conn.cursor()
     query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url, image_bytes FROM nsfw_server.contributed_image where ground_truth_result is null and image_bytes is not null order by random() limit 1'''
     cursor.execute(query)
