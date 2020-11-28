@@ -74,7 +74,7 @@ def ground_truth_result(image_id):
 def ground_truth_random_image():
     conn = get_db()
     cursor = conn.cursor()
-    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url, image_bytes FROM nsfw_server.contributed_image where ground_truth_result is null and image_bytes is not null order by random() limit 1'''
+    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url, image_bytes FROM nsfw_server.contributed_image where ground_truth_result is null and image_bytes is not null and image_is_explicit is not true order by random() limit 1'''
     cursor.execute(query)
     query_results = cursor.fetchone()
     cursor.close()
