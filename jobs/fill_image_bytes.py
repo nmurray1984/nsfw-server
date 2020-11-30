@@ -19,6 +19,7 @@ results = {}
 for image_id, url in query_results:
     print('Processing image %s' % str(image_id))
     try:
+        results = {"error": False}
         response = requests.get(url, timeout=10)
         full_size_image = tf.io.decode_image(response.content, channels=3)
         resized = tf.image.resize(full_size_image, [224,224], tf.image.ResizeMethod.BILINEAR)

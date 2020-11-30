@@ -10,7 +10,7 @@ url = 'https://southcentralus.api.cognitive.microsoft.com/contentmoderator/moder
 
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 cursor = conn.cursor()
-query = "SELECT id, image_bytes FROM nsfw_server.contributed_image where azure_content_moderator_result is null limit 10000"
+query = "SELECT id, image_bytes FROM nsfw_server.contributed_image where azure_content_moderator_result is null and image_bytes is not null limit 1000"
 cursor.execute(query)
 query_results = cursor.fetchall()
 
