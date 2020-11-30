@@ -56,16 +56,14 @@ def image_test():
 def ground_truth_result(image_id):
     if request.method == 'POST':
         app.logger.info('Saving ground truth for image: %s', image_id)
-        DATABASE_URL = os.environ['DATABASE_URL']
         #json_result = request.get_json(force=True)
         app.logger.info('Form Result: %s', json.dumps(request.form))
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        conn = get_db()
         cursor = conn.cursor()
         query = "update nsfw_server.contributed_image set ground_truth_result = %(json_result)s where id = %(image_id)s"
         cursor.execute(query, {'image_id': image_id, 'json_result': json.dumps(request.form)})
         conn.commit()
-        cursor.close()
-        conn.close()        
+        cursor.close()     
         return redirect('/safe-classifier')
     else:
         return 'bad request', 400
@@ -74,7 +72,7 @@ def ground_truth_result(image_id):
 def ground_truth_random_image():
     conn = get_db()
     cursor = conn.cursor()
-    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url, image_bytes FROM nsfw_server.contributed_image where ground_truth_result is null and image_bytes is not null and image_is_explicit is not true order by random() limit 1'''
+    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url, image_bytes FROM nsfw_server.contributed_image where ground_truth_result is null and image_bytes is not null and image_is_explicit is not true limit 1'''
     cursor.execute(query)
     query_results = cursor.fetchone()
     cursor.close()
