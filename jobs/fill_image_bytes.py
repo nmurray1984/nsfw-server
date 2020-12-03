@@ -29,6 +29,7 @@ for image_id, url in query_results:
         cursor = conn.cursor()
         query = '''UPDATE nsfw_server.contributed_image SET image_bytes = %(image_bytes)s, image_bytes_response = %(results)s where id = %(image_id)s '''
         cursor.execute(query, {'image_id': image_id, 'image_bytes': byte_array, 'results': json.dumps(results)})
+        cursor.execute('insert into nsfw_server.image_result (image_id) values (%(image_id)s)', {'image_id': image_id})
         conn.commit()   
         cursor.close()
     except requests.exceptions.ReadTimeout:

@@ -9,7 +9,6 @@ import base64
 import logging
 import json
 import requests
-import tensorflow as tf
 
 app = Flask(__name__)
 
