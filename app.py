@@ -60,7 +60,7 @@ def ground_truth_result(image_id):
         app.logger.info('Form Result: %s', json.dumps(request.form))
         conn = get_db()
         cursor = conn.cursor()
-        query = "update nsfw_server.contributed_image set ground_truth_result = %(json_result)s where id = %(image_id)s"
+        query = "update nsfw_server.image_result set ground_truth_result = %(json_result)s where image_id = %(image_id)s"
         cursor.execute(query, {'image_id': image_id, 'json_result': json.dumps(request.form)})
         conn.commit()
         cursor.close()     
@@ -72,7 +72,7 @@ def ground_truth_result(image_id):
 def ground_truth_random_image():
     conn = get_db()
     cursor = conn.cursor()
-    query = '''SELECT id, convert_from(decode(url, 'base64'), 'UTF-8') as url, image_bytes FROM nsfw_server.contributed_image where ground_truth_result is null and image_bytes is not null and image_is_explicit is not true limit 1'''
+    query = '''SELECT i.id, convert_from(decode(i.url, 'base64'), 'UTF-8') as url, i.image_bytes FROM nsfw_server.contributed_image i left join nsfw_server.image_result r on i.id = r.image_id where r.ground_truth_result is null and i.image_bytes is not null and i.image_is_explicit is not true limit 1'''
     cursor.execute(query)
     query_results = cursor.fetchone()
     cursor.close()
