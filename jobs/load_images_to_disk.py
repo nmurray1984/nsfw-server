@@ -1,4 +1,3 @@
-import tensorflow as tf
 import psycopg2
 import os
 import sys
