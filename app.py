@@ -9,24 +9,20 @@ import base64
 import logging
 import json
 import requests
+import random
 
 app = Flask(__name__)
+
+DATABASE_URL = os.environ['DATABASE_URL']
+app.logger.info('creating new connection')
+db = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 def get_db():
     """Opens a new database connection if there is none yet for the
     current application context.
     """
-    if not hasattr(g, 'postgres_db'):
-        DATABASE_URL = os.environ['DATABASE_URL']
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        g.postgres_db = conn
-    return g.postgres_db
+    return db
 
-@app.teardown_appcontext
-def close_db(error):
-    """Closes the database again at the end of the request."""
-    if hasattr(g, 'postgres_db'):
-        g.postgres_db.close()
 
 @app.route('/')
 def persist_url():
@@ -71,20 +67,37 @@ def ground_truth_result(image_id):
 def ground_truth_random_image():
     conn = get_db()
     cursor = conn.cursor()
-    query = '''SELECT i.id, convert_from(decode(i.url, 'base64'), 'UTF-8') as url, i.image_bytes FROM nsfw_server.contributed_image i left join nsfw_server.image_result r on i.id = r.image_id where r.ground_truth_result is null and i.image_bytes is not null and i.image_is_explicit is not true limit 1'''
+    query = '''SELECT 
+    r.image_id
+    FROM 
+    nsfw_server.image_classification_vw r
+    inner join nsfw_server.contributed_image i on i.id = r.image_id
+    where 
+    r.ground_class is null
+    r.original_class is null
+    and i.image_bytes is not null
+    limit 10'''
     cursor.execute(query)
-    query_results = cursor.fetchone()
+    query_results = cursor.fetchall()
+    if len(query_results) == 0:
+        return {"error": True}
+    image_id = random.choice(query_results)[0]
     cursor.close()
-    image_bytes = query_results[2]
+    query2 = '''select image_bytes from nsfw_server.contributed_image where id = %(image_id)s'''
+    cursor2 = conn.cursor()
+    cursor2.execute(query2, {'image_id': image_id})
+    query2_results = cursor2.fetchone()
+    app.logger.info('query results: %s', query2_results)
+    image_bytes = query2_results[0]
     base64str = str(base64.b64encode(image_bytes), 'utf-8')
     img_string = 'data:image/jpeg;base64,' + base64str
-    return {"id": query_results[0], "url": query_results[1], "data_url": img_string, "error": False}
+    return {"id": image_id, "data_url": img_string, "error": False}
     
 @app.route('/safe-classifier')
 def safe_classifier():
     context = ground_truth_random_image()
     if context['error'] == True:
-        return redirect('/safe-classifier')
+        return render_template('no-more.html')
     return render_template('ground-truth-ui.html', context=context)
 
 @app.after_request

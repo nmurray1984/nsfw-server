@@ -50,15 +50,6 @@ for image_id, url in query_results:
         conn.commit()   
         cursor.close()
         continue       
-    except tf.python.framework.errors_impl.InvalidArgumentError:
-        #bad image that is not able to be processed
-        results = {"error": True, "message": "tf.python.framework.errors_impl.InvalidArgumentError"}
-        cursor = conn.cursor()
-        query = '''UPDATE nsfw_server.contributed_image SET image_bytes_response = %(results)s where id = %(image_id)s '''
-        cursor.execute(query, {'image_id': image_id, 'results': json.dumps(results)})
-        conn.commit()   
-        cursor.close()
-        continue
     except requests.exceptions.ConnectionError:
         results = {"error": True, "message": "requests.exceptions.ConnectionError"}
         cursor = conn.cursor()
@@ -67,6 +58,15 @@ for image_id, url in query_results:
         conn.commit()   
         cursor.close()
         continue
+    except Exception as err:
+         #bad image that is not able to be processed
+        results = {"error": True, "message": str(err)}
+        cursor = conn.cursor()
+        query = '''UPDATE nsfw_server.contributed_image SET image_bytes_response = %(results)s where id = %(image_id)s '''
+        cursor.execute(query, {'image_id': image_id, 'results': json.dumps(results)})
+        conn.commit()   
+        cursor.close()
+        continue       
 
 conn.close()
 

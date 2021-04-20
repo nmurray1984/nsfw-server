@@ -19,7 +19,7 @@ model.compile(loss='binary_crossentropy',
 
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 cursor = conn.cursor()
-query = '''SELECT id, image_bytes FROM nsfw_server.contributed_image where nsfwv03_result is null and image_bytes is not null limit 1000'''
+query = '''SELECT c.id, c.image_bytes FROM nsfw_server.image_result i inner join nsfw_server.contributed_image c on i.image_id = c.id where i.nsfwv03_result is null and c.image_bytes is not null limit 1000'''
 cursor.execute(query)
 query_results = cursor.fetchall()
 cursor.close()
@@ -46,7 +46,7 @@ for id, image_bytes in query_results:
     #    }
 
     cursor2 = conn.cursor()
-    update_sql = 'update nsfw_server.contributed_image set nsfwv03_result = %(data)s where id = %(id)s'
+    update_sql = 'update nsfw_server.image_result set nsfwv03_result = %(data)s where image_id = %(id)s'
     cursor2.execute(update_sql, {'data': json.dumps(result), 'id': id})
     conn.commit()
     cursor2.close()
