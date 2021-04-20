@@ -24,7 +24,6 @@ query = '''
 SELECT
    c.id,
    c.image_bytes,
-   di.image_set,
    di.classification
 FROM
    nsfw_server.dataset_image di
@@ -39,11 +38,11 @@ cursor = conn.cursor()
 cursor.execute(query)
 
 for row in cursor:
-   image_id, image_bytes, image_set, image_classification = row
+   image_id, image_bytes, image_classification = row
 
    image_file_name = str(image_id) + '.jpg'
    cache_file_path = os.path.join(cache_folder_path, image_file_name)
-   sym_folder_path = os.path.join(IMAGE_FILE_PATH, DATASET_NAME, image_set, image_classification)
+   sym_folder_path = os.path.join(IMAGE_FILE_PATH, DATASET_NAME, image_classification)
    sym_file_path = os.path.join(sym_folder_path, image_file_name)
    
    #check if file exists, and if so, don't write it again
