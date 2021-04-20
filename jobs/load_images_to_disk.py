@@ -1,9 +1,6 @@
 import tensorflow as tf
 import psycopg2
 import os
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
-import os
 import sys
 import json
 import os
